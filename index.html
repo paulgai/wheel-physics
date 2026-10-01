@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="el" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Διαδραστική προσομοίωση κύλισης τροχού χωρίς ολίσθηση."
+    />
+    <title>Προσομοίωση κύλισης τροχού</title>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside
+        id="settings-panel"
+        class="side-panel settings-panel"
+        aria-label="Πάνελ παραμέτρων"
+      >
+        <header class="panel-header">
+          <h1>Προσομοίωση κύλισης τροχού</h1>
+        </header>
+
+        <div class="settings-content">
+          <details class="settings-group" open>
+            <summary>Τροχός</summary>
+            <div class="settings-group-body">
+          <div class="parameter-control">
+            <div class="parameter-heading">
+              <label for="radius-range"><span data-latex="R">R</span></label>
+              <div class="number-field">
+                <input
+                  id="radius-number"
+                  type="number"
+                  min="0.1"
+                  max="10"
+                  step="0.1"
+                  value="1"
+                  inputmode="decimal"
+                  aria-label="Ακτίνα τροχού R"
+                />
+                <span data-latex="\mathrm{m}">m</span>
+              </div>
+            </div>
+            <input
+              id="radius-range"
+              class="form-range"
+              type="range"
+              min="0.1"
+              max="10"
+              step="0.1"
+              value="1"
+            />
+            <div class="range-limits" aria-hidden="true">
+              <span data-latex="0{,}1">0,1</span><span data-latex="10">10</span>
+            </div>
+          </div>
+
+          <div class="parameter-control">
+            <div class="parameter-heading">
+              <label for="omega-range"><span data-latex="\omega_0">ω₀</span></label>
+              <div class="number-field">
+                <input
+                  id="omega-number"
+                  type="number"
+                  step="0.1"
+                  value="0.2"
+                  inputmode="decimal"
+                  aria-label="Αρχική γωνιακή ταχύτητα ω0"
+                />
+                <span data-latex="\mathrm{rad}/\mathrm{s}">rad/s</span>
+              </div>
+            </div>
+            <input
+              id="omega-range"
+              class="form-range"
+              type="range"
+              min="-5"
+              max="5"
+              step="0.1"
+              value="0.2"
+            />
+            <div class="range-limits" aria-hidden="true">
+              <span data-latex="-5">−5</span><span data-latex="5">5</span>
+            </div>
+          </div>
+
+          <div class="parameter-control">
+            <div class="parameter-heading">
+              <label for="alpha-range"><span data-latex="\alpha_{\gamma\omega\nu}">αγων</span></label>
+              <div class="number-field">
+                <input
+                  id="alpha-number"
+                  type="number"
+                  step="0.1"
+                  value="0"
+                  inputmode="decimal"
+                  aria-label="Γωνιακή επιτάχυνση"
+                />
+                <span data-latex="\mathrm{rad}/\mathrm{s}^2">rad/s²</span>
+              </div>
+            </div>
+            <input
+              id="alpha-range"
+              class="form-range"
+              type="range"
+              min="-5"
+              max="5"
+              step="0.1"
+              value="0"
+            />
+            <div class="range-limits" aria-hidden="true">
+              <span data-latex="-5">−5</span><span data-latex="5">5</span>
+            </div>
+          </div>
+
+            </div>
+          </details>
+
+          <details class="settings-group" open>
+            <summary>Σημείο Α</summary>
+            <div class="settings-group-body">
+              <div class="parameter-control">
+                <div class="parameter-heading">
+                  <label for="mass-range"><span data-latex="m">m</span></label>
+                  <div class="number-field">
+                    <input
+                      id="mass-number"
+                      type="number"
+                      min="0.1"
+                      max="5"
+                      step="0.1"
+                      value="1"
+                      inputmode="decimal"
+                      aria-label="Μάζα του υλικού σημείου Α"
+                    />
+                    <span data-latex="\mathrm{kg}">kg</span>
+                  </div>
+                </div>
+                <input id="mass-range" class="form-range" type="range" min="0.1" max="5" step="0.1" value="1" />
+                <div class="range-limits" aria-hidden="true">
+                  <span data-latex="0{,}1">0,1</span><span data-latex="5">5</span>
+                </div>
+              </div>
+
+              <div class="parameter-control">
+                <div class="parameter-heading">
+                  <label for="rho-range"><span data-latex="\rho">ρ</span></label>
+                  <div class="number-field">
+                    <input
+                      id="rho-number"
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value="0.5"
+                      inputmode="decimal"
+                      aria-label="Απόσταση ρ του σημείου Α από το κέντρο"
+                    />
+                    <span data-latex="\mathrm{m}">m</span>
+                  </div>
+                </div>
+                <input id="rho-range" class="form-range" type="range" min="0" max="1" step="0.01" value="0.5" />
+                <div class="range-limits" aria-hidden="true">
+                  <span data-latex="0">0</span><span id="rho-maximum" data-latex="1">1</span>
+                </div>
+              </div>
+
+            </div>
+          </details>
+
+          <details class="display-settings" open>
+            <summary>Εμφάνιση</summary>
+            <div class="display-settings-body">
+              <label>
+                <input id="show-geometry" type="checkbox" />
+                <span>Γεωμετρικά χαρακτηριστικά</span>
+              </label>
+              <label>
+                <input id="show-vectors" type="checkbox" />
+                <span>Επιταχύνσεις</span>
+              </label>
+              <label>
+                <input id="show-translational-velocity" type="checkbox" />
+                <span>Μεταφορική ταχύτητα</span>
+              </label>
+              <label>
+                <input id="show-rotational-velocity" type="checkbox" />
+                <span>Περιστροφική ταχύτητα</span>
+              </label>
+              <label>
+                <input id="show-traces" type="checkbox" />
+                <span>Ίχνος</span>
+              </label>
+            </div>
+          </details>
+        </div>
+      </aside>
+
+      <button
+        id="settings-panel-toggle"
+        class="side-panel-toggle settings-panel-toggle"
+        type="button"
+        aria-controls="settings-panel"
+        aria-expanded="true"
+        title="Απόκρυψη παραμέτρων"
+      >
+        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        <span class="visually-hidden">Απόκρυψη παραμέτρων</span>
+      </button>
+
+      <main class="simulation-area">
+        <div class="top-actions">
+          <div class="view-toolbar" role="group" aria-label="Εργαλεία προβολής">
+            <button
+              class="toolbar-button active"
+              type="button"
+              data-theme="light"
+              aria-label="Φωτεινό θέμα"
+              aria-pressed="true"
+              title="Φωτεινό θέμα"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.5"></circle>
+                <path
+                  d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"
+                ></path>
+              </svg>
+            </button>
+            <button
+              class="toolbar-button"
+              type="button"
+              data-theme="dark"
+              aria-label="Σκοτεινό θέμα"
+              aria-pressed="false"
+              title="Σκοτεινό θέμα"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.5 15.1A8.8 8.8 0 0 1 8.9 3.5 8.8 8.8 0 1 0 20.5 15.1Z"></path>
+              </svg>
+            </button>
+            <button
+              id="toggle-fullscreen"
+              class="toolbar-button toolbar-divider"
+              type="button"
+              aria-label="Πλήρης οθόνη"
+              aria-pressed="false"
+              title="Πλήρης οθόνη"
+            >
+              <i class="bi bi-fullscreen" aria-hidden="true"></i>
+            </button>
+            <button
+              id="zoom-in"
+              class="toolbar-button"
+              type="button"
+              aria-label="Μεγέθυνση εφαρμογής"
+              title="Μεγέθυνση εφαρμογής"
+            >
+              <i class="bi bi-zoom-in" aria-hidden="true"></i>
+            </button>
+            <button
+              id="zoom-out"
+              class="toolbar-button"
+              type="button"
+              aria-label="Σμίκρυνση εφαρμογής"
+              title="Σμίκρυνση εφαρμογής"
+            >
+              <i class="bi bi-zoom-out" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <section
+          id="simulation-viewport"
+          class="simulation-viewport"
+          tabindex="0"
+          aria-label="Πεδίο προσομοίωσης"
+        >
+          <svg
+            id="disk-scene"
+            class="disk-scene"
+            role="img"
+            aria-label="Τροχός που κυλίεται χωρίς ολίσθηση, με κέντρο Ο και σημείο Α"
+          >
+            <defs>
+              <radialGradient id="disk-fill" cx="42%" cy="36%" r="72%">
+                <stop offset="0" class="disk-fill-start" />
+                <stop offset="1" class="disk-fill-end" />
+              </radialGradient>
+            </defs>
+
+            <g id="simulation-world" class="simulation-world">
+              <g id="ground-layer" class="ground-layer" aria-hidden="true">
+                <rect id="ground-fill" class="ground-fill" />
+                <line id="ground-line" class="ground-line" />
+                <path id="ground-markers" class="ground-markers" />
+              </g>
+
+              <g id="disk-rotor" class="disk-rotor">
+              <circle id="disk-body" class="disk-body" />
+              <circle id="disk-ring-outer" class="disk-ring disk-ring-outer" />
+              <circle id="disk-ring-inner" class="disk-ring disk-ring-inner" />
+              <g class="rotation-markers" aria-hidden="true">
+                <line /><line /><line /><line />
+                <line /><line /><line /><line />
+                <line id="marker-accent" class="marker-accent" />
+              </g>
+              </g>
+
+              <g id="trace-layer" class="trace-layer" aria-hidden="true">
+                <path id="trace-glow" class="motion-trail-glow" />
+                <path id="trace-path" class="motion-trail-path" />
+              </g>
+
+              <g id="geometry-layer" class="geometry-layer" aria-hidden="true">
+                <line id="vertical-reference" class="geometry-reference" />
+                <line id="radius-guide" class="radius-guide" />
+                <path id="theta-current-arc" class="geometry-angle-arc current-angle-arc" />
+                <polygon id="theta-current-head" class="geometry-angle-head current-angle-head" />
+                <foreignObject id="rho-label" class="svg-latex-label feature-label draggable-sim-label" width="42" height="36">
+                  <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\rho">ρ</span></div>
+                </foreignObject>
+                <foreignObject id="theta-current-label" class="svg-latex-label feature-label draggable-sim-label" width="42" height="36">
+                  <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\theta">θ</span></div>
+                </foreignObject>
+              </g>
+
+              <g id="vectors-layer" class="vectors-layer" aria-hidden="true">
+                <g id="velocity-vectors-layer">
+                  <line id="vector-velocity" class="motion-vector velocity-vector" />
+                  <polygon id="vector-velocity-head" class="velocity-vector-head" />
+                  <foreignObject id="velocity-label" class="svg-latex-label feature-label draggable-sim-label" width="42" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{u}">u</span></div>
+                  </foreignObject>
+                  <line id="vector-translation-a" class="motion-vector translation-vector" />
+                  <polygon id="vector-translation-a-head" class="translation-vector-head" />
+                  <foreignObject id="translation-a-label" class="svg-latex-label feature-label draggable-sim-label" width="58" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{u}_{cm}">u_cm</span></div>
+                  </foreignObject>
+                  <line id="vector-translation-center" class="motion-vector translation-vector" />
+                  <polygon id="vector-translation-center-head" class="translation-vector-head" />
+                  <foreignObject id="translation-center-label" class="svg-latex-label feature-label draggable-sim-label" width="58" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{u}_{cm}">u_cm</span></div>
+                  </foreignObject>
+                  <line id="vector-total-velocity" class="motion-vector total-velocity-vector" />
+                  <polygon id="vector-total-velocity-head" class="total-velocity-vector-head" />
+                  <foreignObject id="total-velocity-label" class="svg-latex-label feature-label draggable-sim-label" width="58" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{u}_A">u_A</span></div>
+                  </foreignObject>
+                </g>
+                <g id="acceleration-vectors-layer">
+                  <line id="vector-tangential" class="acceleration-vector vector-tangential" />
+                  <polygon id="vector-tangential-head" class="acceleration-vector-head vector-tangential-head" />
+                  <line id="vector-centripetal" class="acceleration-vector vector-centripetal" />
+                  <polygon id="vector-centripetal-head" class="acceleration-vector-head vector-centripetal-head" />
+                  <line id="vector-resultant" class="acceleration-vector vector-resultant" />
+                  <polygon id="vector-resultant-head" class="acceleration-vector-head vector-resultant-head" />
+                  <foreignObject id="tangential-label" class="svg-latex-label feature-label draggable-sim-label" width="52" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{a}_{\varepsilon}">aε</span></div>
+                  </foreignObject>
+                  <foreignObject id="centripetal-label" class="svg-latex-label feature-label draggable-sim-label" width="52" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{a}_{\kappa}">aκ</span></div>
+                  </foreignObject>
+                  <foreignObject id="resultant-label" class="svg-latex-label feature-label draggable-sim-label" width="42" height="36">
+                    <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="\vec{a}">a</span></div>
+                  </foreignObject>
+                </g>
+              </g>
+
+              <g class="center-point" aria-label="Κέντρο Ο">
+                <circle id="center-dot" r="6" />
+                <foreignObject id="center-label" class="svg-latex-label draggable-sim-label" width="42" height="36">
+                  <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="O">O</span></div>
+                </foreignObject>
+              </g>
+
+              <g
+                id="point-a"
+                class="point-a"
+                role="button"
+                tabindex="0"
+                aria-label="Σημείο Α. Σύρετε για αλλαγή θέσης."
+              >
+                <circle class="point-a-hit" r="20" />
+                <circle class="point-a-dot" r="7" />
+                <foreignObject id="point-a-label" class="svg-latex-label draggable-sim-label" width="42" height="36">
+                  <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="A">A</span></div>
+                </foreignObject>
+              </g>
+            </g>
+          </svg>
+
+          <button
+            id="reset-view"
+            class="reset-view"
+            type="button"
+            title="Επαναφορά προβολής"
+            aria-label="Επαναφορά προβολής"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.68M4 4v4.68h4.68"></path>
+            </svg>
+          </button>
+
+          <button
+            id="show-physics-info"
+            class="reset-view info-button"
+            type="button"
+            title="Φυσικές παραδοχές"
+            aria-label="Προβολή φυσικών παραδοχών"
+            aria-haspopup="dialog"
+            aria-controls="physics-info-dialog"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 10.5v6M12 7.5h.01"></path>
+            </svg>
+          </button>
+
+          <div
+            class="simulation-controls"
+            role="group"
+            aria-label="Χειρισμός προσομοίωσης"
+          >
+            <button
+              id="restart-simulation"
+              class="simulation-button"
+              type="button"
+              title="Επανεκκίνηση"
+              aria-label="Επανεκκίνηση προσομοίωσης"
+            >
+              <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+            </button>
+            <button
+              id="step-backward"
+              class="simulation-button"
+              type="button"
+              title="0,01 s πίσω"
+              aria-label="Μετακίνηση 0,01 δευτερόλεπτα πίσω"
+              disabled
+            >
+              <i class="bi bi-skip-backward-fill" aria-hidden="true"></i>
+            </button>
+            <button
+              id="play-simulation"
+              class="simulation-button primary"
+              type="button"
+              title="Έναρξη"
+              aria-label="Έναρξη προσομοίωσης"
+            >
+              <i class="bi bi-play-fill" aria-hidden="true"></i>
+            </button>
+            <button
+              id="pause-simulation"
+              class="simulation-button"
+              type="button"
+              title="Παύση"
+              aria-label="Παύση προσομοίωσης"
+              disabled
+            >
+              <i class="bi bi-pause-fill" aria-hidden="true"></i>
+            </button>
+            <button
+              id="step-forward"
+              class="simulation-button"
+              type="button"
+              title="0,01 s μπροστά"
+              aria-label="Μετακίνηση 0,01 δευτερόλεπτα μπροστά"
+            >
+              <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <aside
+        id="results-panel"
+        class="side-panel results-panel"
+        aria-label="Πάνελ αποτελεσμάτων"
+        aria-live="polite"
+      >
+        <section class="result-time-block" aria-labelledby="time-heading">
+          <p id="time-heading" class="results-heading">Χρόνος</p>
+          <div class="result-time-row">
+            <span data-latex="t">t</span>
+            <span>=</span>
+            <strong><span id="result-time-value">0,00</span>&nbsp;<span data-latex="\mathrm{s}">s</span></strong>
+          </div>
+        </section>
+
+        <details class="result-values-block results-collapsible" open>
+          <summary id="kinematics-heading">Κινηματικά μεγέθη σημείου Α</summary>
+          <div class="results-grid">
+            <span data-latex="\lvert\vec{u}\rvert">|u⃗|</span><span>=</span><strong><span id="result-u-value">0,00</span>&nbsp;<span data-latex="\mathrm{m/s}">m/s</span></strong>
+            <span data-latex="\lvert\vec{u}_{cm}\rvert">|u⃗_cm|</span><span>=</span><strong><span id="result-u-cm-value">0,00</span>&nbsp;<span data-latex="\mathrm{m/s}">m/s</span></strong>
+            <span data-latex="\lvert\vec{u}_A\rvert">|u⃗_A|</span><span>=</span><strong><span id="result-u-a-value">0,00</span>&nbsp;<span data-latex="\mathrm{m/s}">m/s</span></strong>
+            <span data-latex="\lvert\vec{a}_{\varepsilon}\rvert">|a⃗ε|</span><span>=</span><strong><span id="result-a-t-value">0,00</span>&nbsp;<span data-latex="\mathrm{m/s^2}">m/s²</span></strong>
+            <span data-latex="\lvert\vec{a}_{\kappa}\rvert">|a⃗κ|</span><span>=</span><strong><span id="result-a-c-value">0,00</span>&nbsp;<span data-latex="\mathrm{m/s^2}">m/s²</span></strong>
+            <span data-latex="\lvert\vec{a}\rvert">|a⃗|</span><span>=</span><strong><span id="result-a-value">0,00</span>&nbsp;<span data-latex="\mathrm{m/s^2}">m/s²</span></strong>
+            <span data-latex="S">S</span><span>=</span><strong><span id="result-s-value">0,00</span>&nbsp;<span data-latex="\mathrm{m}">m</span></strong>
+            <span data-latex="N">N</span><span>=</span><strong id="result-n-value">0,000</strong>
+            <span data-latex="K_A">Kₐ</span><span>=</span><strong><span id="result-kinetic-energy-value">0,00</span>&nbsp;<span data-latex="\mathrm{J}">J</span></strong>
+          </div>
+        </details>
+
+        <details class="results-graphs">
+          <summary>Γραφήματα</summary>
+          <div class="results-charts">
+          <article class="result-chart-card">
+            <header class="result-chart-header">
+              <span data-latex="\alpha_{\gamma\omega\nu}(t)">αγων(t)</span>
+              <strong><span id="result-alpha-value">0,00</span>&nbsp;<span data-latex="\mathrm{rad/s^2}">rad/s²</span></strong>
+            </header>
+            <svg class="result-chart" viewBox="0 0 240 138" role="img" aria-label="Γραφική παράσταση γωνιακής επιτάχυνσης ως προς τον χρόνο">
+              <g id="chart-alpha-grid" class="chart-grid" aria-hidden="true"></g>
+              <line class="chart-axis" x1="36" y1="12" x2="36" y2="115" />
+              <line id="chart-alpha-zero" class="chart-axis chart-time-axis" />
+              <path id="chart-alpha-path" class="chart-line chart-alpha-line" />
+              <circle id="chart-alpha-point" class="chart-point chart-alpha-point" r="3" />
+              <g id="chart-alpha-ticks" class="chart-ticks"></g>
+              <foreignObject id="chart-alpha-time-label" class="chart-axis-latex" x="217" y="92" width="14" height="18">
+                <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="t">t</span></div>
+              </foreignObject>
+            </svg>
+          </article>
+
+          <article class="result-chart-card">
+            <header class="result-chart-header">
+              <span data-latex="\omega_{\gamma\omega\nu}(t)">ωγων(t)</span>
+              <strong><span id="result-omega-value">0,20</span>&nbsp;<span data-latex="\mathrm{rad/s}">rad/s</span></strong>
+            </header>
+            <svg class="result-chart" viewBox="0 0 240 138" role="img" aria-label="Γραφική παράσταση γωνιακής ταχύτητας ως προς τον χρόνο">
+              <g id="chart-omega-grid" class="chart-grid" aria-hidden="true"></g>
+              <line class="chart-axis" x1="36" y1="12" x2="36" y2="115" />
+              <line id="chart-omega-zero" class="chart-axis chart-time-axis" />
+              <path id="chart-omega-path" class="chart-line chart-omega-line" />
+              <circle id="chart-omega-point" class="chart-point chart-omega-point" r="3" />
+              <g id="chart-omega-ticks" class="chart-ticks"></g>
+              <foreignObject id="chart-omega-time-label" class="chart-axis-latex" x="217" y="92" width="14" height="18">
+                <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="t">t</span></div>
+              </foreignObject>
+            </svg>
+          </article>
+
+          <article class="result-chart-card">
+            <header class="result-chart-header">
+              <span data-latex="\theta_{\gamma\omega\nu}(t)">θγων(t)</span>
+              <strong><span id="result-theta-value">0,00</span>&nbsp;<span data-latex="\mathrm{rad}">rad</span></strong>
+            </header>
+            <svg class="result-chart" viewBox="0 0 240 138" role="img" aria-label="Γραφική παράσταση γωνιακής θέσης ως προς τον χρόνο">
+              <g id="chart-theta-grid" class="chart-grid" aria-hidden="true"></g>
+              <line class="chart-axis" x1="36" y1="12" x2="36" y2="115" />
+              <line id="chart-theta-zero" class="chart-axis chart-time-axis" />
+              <path id="chart-theta-path" class="chart-line chart-theta-line" />
+              <circle id="chart-theta-point" class="chart-point chart-theta-point" r="3" />
+              <g id="chart-theta-ticks" class="chart-ticks"></g>
+              <foreignObject id="chart-theta-time-label" class="chart-axis-latex" x="217" y="92" width="14" height="18">
+                <div xmlns="http://www.w3.org/1999/xhtml"><span data-latex="t">t</span></div>
+              </foreignObject>
+            </svg>
+          </article>
+          </div>
+        </details>
+      </aside>
+
+      <button
+        id="results-panel-toggle"
+        class="side-panel-toggle results-panel-toggle"
+        type="button"
+        aria-controls="results-panel"
+        aria-expanded="true"
+        title="Απόκρυψη αποτελεσμάτων"
+      >
+        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        <span class="visually-hidden">Απόκρυψη αποτελεσμάτων</span>
+      </button>
+    </div>
+
+    <dialog
+      id="physics-info-dialog"
+      class="physics-info-dialog"
+      aria-labelledby="physics-info-title"
+    >
+      <div class="physics-info-card">
+        <header class="physics-info-header">
+          <div>
+            <p class="physics-info-eyebrow">Πληροφορίες μοντέλου</p>
+            <h2 id="physics-info-title">Φυσικές παραδοχές</h2>
+          </div>
+          <button
+            id="close-physics-info"
+            class="physics-info-close"
+            type="button"
+            title="Κλείσιμο"
+            aria-label="Κλείσιμο πληροφοριών"
+          >
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="physics-info-content">
+          <section>
+            <h3>Μοντέλο και σύστημα αναφοράς</h3>
+            <ul>
+              <li>Ο τροχός θεωρείται απολύτως στερεός και κυλίεται πάνω σε οριζόντιο έδαφος χωρίς ολίσθηση. Η κάμερα ακολουθεί το κέντρο <span data-latex="O">O</span>, γι’ αυτό το κέντρο μένει σταθερό στην οθόνη και το έδαφος κινείται αντίθετα.</li>
+              <li>Το <span data-latex="A">A</span> είναι υλικό σημείο καρφωμένο στον τροχό. Επομένως η απόστασή του <span data-latex="\rho">ρ</span> από το κέντρο μένει σταθερή κατά την κίνηση.</li>
+              <li>Η κίνηση είναι επίπεδη. Η στατική τριβή επαρκεί για κύλιση χωρίς ολίσθηση, ενώ αγνοούνται παραμορφώσεις, αντίσταση αέρα και απώλειες ενέργειας.</li>
+              <li>Η γωνία μετριέται από την κατακόρυφη ακτίνα προς τα κάτω. Θετική φορά είναι η αριστερόστροφη.</li>
+              <li>Η γωνιακή επιτάχυνση θεωρείται σταθερή. Η κίνηση είναι κινηματικά προκαθορισμένη· δεν υπολογίζεται από ροπές ή από εξισώσεις δυναμικής.</li>
+              <li>Η αρχική γωνία είναι πάντοτε <span data-latex="\theta_0=0">θ₀=0</span>. Χρησιμοποιείται το SI· τα <span data-latex="\omega">ω</span> και <span data-latex="\alpha_{\gamma\omega\nu}">αγων</span> δίνονται σε <span data-latex="\mathrm{rad/s}">rad/s</span> και <span data-latex="\mathrm{rad/s^2}">rad/s²</span>.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Παράμετροι</h3>
+            <dl class="physics-definitions">
+              <div><dt><span data-latex="R">R</span></dt><dd>Ακτίνα του τροχού. Καθορίζει το πραγματικό μέγεθος του τροχού πάνω στην κλίμακα του πλέγματος.</dd></div>
+              <div><dt><span data-latex="\rho">ρ</span></dt><dd>Απόσταση του <span data-latex="A">A</span> από το <span data-latex="O">O</span>, με <span data-latex="0\leq\rho\leq R">0 ≤ ρ ≤ R</span>.</dd></div>
+              <div><dt><span data-latex="\omega_0">ω₀</span></dt><dd>Αρχική γωνιακή ταχύτητα. Θετική τιμή προκαλεί αριστερόστροφη κίνηση και αρνητική δεξιόστροφη.</dd></div>
+              <div><dt><span data-latex="\alpha_{\gamma\omega\nu}">αγων</span></dt><dd>Σταθερή γωνιακή επιτάχυνση. Το πρόσημό της καθορίζει τη φορά της επιτρόχιας επιτάχυνσης.</dd></div>
+              <div><dt><span data-latex="m">m</span></dt><dd>Μάζα του υλικού σημείου. Δεν μεταβάλλει την προκαθορισμένη κινηματική ούτε τις επιταχύνσεις· θα ήταν απαραίτητη για υπολογισμούς δυνάμεων, ροπής και ενέργειας.</dd></div>
+            </dl>
+          </section>
+
+          <section>
+            <h3>Γωνιακή κίνηση</h3>
+            <p>Για σταθερή <span data-latex="\alpha_{\gamma\omega\nu}">αγων</span> χρησιμοποιούνται οι σχέσεις:</p>
+            <div class="physics-formulas">
+              <span data-latex="\omega(t)=\omega_0+\alpha_{\gamma\omega\nu}t">ω(t)=ω₀+αγωνt</span>
+              <span data-latex="\theta(t)=\omega_0t+\frac{1}{2}\alpha_{\gamma\omega\nu}t^2">θ(t)=ω₀t+½αγωνt²</span>
+              <span data-latex="\Delta\theta=\theta(t)">Δθ=θ(t)</span>
+            </div>
+            <p>Η <span data-latex="\theta(t)">θ(t)</span> στα γραφήματα δεν περιορίζεται σε μία περιστροφή, ώστε να φαίνεται το συνολικό γωνιακό διάστημα.</p>
+          </section>
+
+          <section>
+            <h3>Γραμμικά μεγέθη και διανύσματα</h3>
+            <div class="physics-formulas">
+              <span data-latex="\lvert\vec{u}\rvert=\lvert\omega\rvert\rho">|u⃗|=|ω|ρ</span>
+              <span data-latex="\lvert\vec{u}_{cm}\rvert=\lvert\omega\rvert R">|u⃗_cm|=|ω|R</span>
+              <span data-latex="\vec{u}_A=\vec{u}_{cm}+\vec{u}">u⃗_A=u⃗_cm+u⃗</span>
+              <span data-latex="\lvert\vec{a}_{\varepsilon}\rvert=\lvert\alpha_{\gamma\omega\nu}\rvert\rho">|a⃗ε|=|αγων|ρ</span>
+              <span data-latex="\lvert\vec{a}_{\kappa}\rvert=\omega^2\rho=\frac{\lvert\vec{u}\rvert^2}{\rho}\quad(\rho&gt;0)">|a⃗κ|=ω²ρ=|u⃗|²/ρ (ρ&gt;0)</span>
+              <span data-latex="\lvert\vec{a}\rvert=\sqrt{\lvert\vec{a}_{\varepsilon}\rvert^2+\lvert\vec{a}_{\kappa}\rvert^2}">|a⃗|=√(|a⃗ε|²+|a⃗κ|²)</span>
+            </div>
+            <ul>
+              <li>Η <span data-latex="\vec{u}">u⃗</span> και η <span data-latex="\vec{a}_{\varepsilon}">a⃗ε</span> είναι εφαπτόμενες στην τροχιά. Το πρόσημο των <span data-latex="\omega">ω</span> και <span data-latex="\alpha_{\gamma\omega\nu}">αγων</span> καθορίζει αντίστοιχα τη φορά τους.</li>
+              <li>Η <span data-latex="\vec{u}">u⃗</span> είναι η περιστροφική ταχύτητα του <span data-latex="A">A</span> ως προς το κέντρο. Η <span data-latex="\vec{u}_{cm}">u⃗_cm</span> είναι κοινή για όλα τα σημεία του τροχού. Στα αποτελέσματα εμφανίζονται τα θετικά μέτρα τους, ενώ η φορά φαίνεται από τα διανύσματα.</li>
+              <li>Όταν ενεργοποιούνται και οι δύο ταχύτητες, εμφανίζονται στο <span data-latex="A">A</span> οι δύο συνιστώσες και η συνισταμένη <span data-latex="\vec{u}_A">u⃗_A</span>. Στο <span data-latex="O">O</span> εμφανίζεται η <span data-latex="\vec{u}_{cm}">u⃗_cm</span>.</li>
+              <li>Η <span data-latex="\vec{a}_{\kappa}">a⃗κ</span> κατευθύνεται πάντοτε προς το <span data-latex="O">O</span>. Η συνολική επιτάχυνση είναι <span data-latex="\vec{a}=\vec{a}_{\varepsilon}+\vec{a}_{\kappa}">a⃗=a⃗ε+a⃗κ</span>.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Διαδρομή και αποτελέσματα</h3>
+            <div class="physics-formulas">
+              <span data-latex="S=\rho\,\Delta\theta">S=ρΔθ</span>
+              <span data-latex="N=\frac{\Delta\theta}{2\pi}">N=Δθ/(2π)</span>
+            </div>
+            <ul>
+              <li>Το <span data-latex="S">S</span> είναι το αλγεβρικό μήκος τόξου και το <span data-latex="N">N</span> ο αλγεβρικός αριθμός στροφών. Θετικές και αρνητικές τιμές δηλώνουν αντίθετες φορές κίνησης.</li>
+              <li>Στα αποτελέσματα εμφανίζονται η τρέχουσα χρονική στιγμή, τα μέτρα <span data-latex="\lvert\vec{u}\rvert,\ \lvert\vec{u}_{cm}\rvert,\ \lvert\vec{u}_A\rvert,\ \lvert\vec{a}_{\varepsilon}\rvert,\ \lvert\vec{a}_{\kappa}\rvert,\ \lvert\vec{a}\rvert">|u⃗|, |u⃗_cm|, |u⃗_A|, |a⃗ε|, |a⃗κ|, |a⃗|</span>, τα <span data-latex="S,N">S, N</span> και τα γραφήματα <span data-latex="\alpha_{\gamma\omega\nu}(t),\ \omega(t),\ \theta(t)">αγων(t), ω(t), θ(t)</span>.</li>
+              <li>Η <span data-latex="\theta">θ</span>, οι ταχύτητες, οι επιταχύνσεις και το ίχνος ενημερώνονται με τον χρόνο όταν ενεργοποιηθούν από την ομάδα «Εμφάνιση».</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
